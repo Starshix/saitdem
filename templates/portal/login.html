@@ -1,0 +1,38 @@
+{% extends 'portal/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card p-4">
+            <h2 class="text-center mb-4">Вход в систему</h2>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="id_username" class="form-label">Логин</label>
+                    {{ form.username }}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="id_password" class="form-label">Пароль</label>
+                    {{ form.password }}
+                </div>
+                
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        Неверный логин или пароль. Попробуйте снова.
+                    </div>
+                {% endif %}
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">Войти</button>
+                    <a href="{% url 'register' %}" class="btn btn-outline-secondary">
+                        Еще не зарегистрированы? Создать аккаунт
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

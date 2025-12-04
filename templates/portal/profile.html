@@ -1,0 +1,117 @@
+{% extends 'portal/base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3>Мои заявки на обучение</h3>
+                <a href="{% url 'create_application' %}" class="btn btn-primary">
+                    📝 Новая заявка
+                </a>
+            </div>
+            
+            {% if applications %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Курс</th>
+                                <th>Дата начала</th>
+                                <th>Способ оплаты</th>
+                                <th>Статус</th>
+                                <th>Дата создания</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for app in applications %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ app.course.title }}</td>
+                                <td>{{ app.desired_start_date|date:"d.m.Y" }}</td>
+                                <td>{{ app.get_payment_method_display }}</td>
+                                <td>
+                                    <span class="status-{{ app.status }}">
+                                        {{ app.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ app.created_at|date:"d.m.Y H:i" }}</td>
+                                <td>
+                                    {% if app.status == 'completed' and not app.feedback %}
+                                        <button type="button" class="btn btn-sm btn-outline-success" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#feedbackModal{{ app.id }}">
+                                            Оставить отзыв
+                                        </button>
+                                    {% elif app.feedback %}
+                                        <span class="badge bg-success">Отзыв оставлен</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    У вас пока нет заявок. <a href="{% url 'create_application' %}">Создайте первую заявку!</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>👤 Информация о профиле</h4>
+            <a href="{% url 'edit_profile' %}" class="btn btn-sm btn-outline-primary">
+                ✏️ Редактировать
+            </a>
+        </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <strong>ФИО:</strong> {{ user.full_name }}
+                </li>
+                <li class="list-group-item">
+                    <strong>Логин:</strong> {{ user.username }}
+                </li>
+                <li class="list-group-item">
+                    <strong>Телефон:</strong> {{ user.phone }}
+                </li>
+                <li class="list-group-item">
+                    <strong>Email:</strong> {{ user.email }}
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Модальные окна для отзывов -->
+{% for app in applications %}
+{% if app.status == 'completed' and not app.feedback %}
+<div class="modal fade" id="feedbackModal{{ app.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Отзыв о курсе: {{ app.course.title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="application_id" value="{{ app.id }}">
+                <div class="modal-body">
+                    {{ feedback_form.feedback }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" name="feedback" class="btn btn-success">Сохранить отзыв</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endblock %}

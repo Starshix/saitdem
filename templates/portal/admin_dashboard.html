@@ -1,0 +1,67 @@
+{% extends 'portal/base.html' %}
+
+{% block content %}
+<div class="card p-4">
+    <h2 class="mb-4">📊 Панель администратора</h2>
+    
+    <div class="alert alert-warning">
+        <strong>Внимание!</strong> Вы вошли как администратор. Здесь вы можете управлять заявками пользователей.
+    </div>
+    
+    {% if applications %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Пользователь</th>
+                        <th>Курс</th>
+                        <th>Дата начала</th>
+                        <th>Способ оплаты</th>
+                        <th>Статус</th>
+                        <th>Дата создания</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                    <tr>
+                        <td>{{ app.id }}</td>
+                        <td>{{ app.user.full_name }}<br><small>{{ app.user.email }}</small></td>
+                        <td>{{ app.course.title }}</td>
+                        <td>{{ app.desired_start_date|date:"d.m.Y" }}</td>
+                        <td>{{ app.get_payment_method_display }}</td>
+                        <td>
+                            <form method="post" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="application_id" value="{{ app.id }}">
+                                <div class="input-group input-group-sm">
+                                    <select name="status" class="form-select form-select-sm status-select" 
+                                            onchange="this.form.submit()">
+                                        {% for value, label in app.Status.choices %}
+                                            <option value="{{ value }}" 
+                                                    {% if app.status == value %}selected{% endif %}>
+                                                {{ label }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </form>
+                        </td>
+                        <td>{{ app.created_at|date:"d.m.Y H:i" }}</td>
+                        <td>
+                            <span class="text-muted">Нет отзыва</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Заявок пока нет.
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

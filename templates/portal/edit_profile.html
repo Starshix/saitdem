@@ -1,0 +1,109 @@
+{% extends 'portal/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Редактирование профиля</h2>
+                <a href="{% url 'profile' %}" class="btn btn-outline-secondary">
+                    ← Назад к профилю
+                </a>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Личная информация</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">ФИО</label>
+                            {{ form.full_name }}
+                            {% if form.full_name.errors %}
+                                <div class="text-danger small">{{ form.full_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Телефон</label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}
+                                <div class="text-danger small">{{ form.phone.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small">{{ form.email.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Безопасность</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Текущий пароль</label>
+                            {{ form.current_password }}
+                            <div class="form-text">Требуется только при смене пароля</div>
+                            {% if form.current_password.errors %}
+                                <div class="text-danger small">{{ form.current_password.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Новый пароль</label>
+                            {{ form.new_password }}
+                            <div class="form-text">Минимум 8 символов</div>
+                            {% if form.new_password.errors %}
+                                <div class="text-danger small">{{ form.new_password.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Подтверждение пароля</label>
+                            {{ form.confirm_password }}
+                            {% if form.confirm_password.errors %}
+                                <div class="text-danger small">{{ form.confirm_password.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <small>
+                        <strong>Внимание:</strong> При смене пароля вы будете автоматически выйти из системы на других устройствах.
+                    </small>
+                </div>
+                
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">Сохранить изменения</button>
+                    <a href="{% url 'profile' %}" class="btn btn-outline-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const phoneInput = document.querySelector('#id_phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 0) {
+                value = '8(' + value.substring(1, 4) + ')' + value.substring(4, 7) + '-' + value.substring(7, 9) + '-' + value.substring(9, 11);
+                value = value.substring(0, 16);
+            }
+            e.target.value = value;
+        });
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

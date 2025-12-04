@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Портал "Корочки.есть"</title>
+    
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <div class="logo__inner">
+                <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="{% static 'images/logo.svg' %}" class="logo"></img>
+                </a>
+                
+                <a class="navbar-brand" href="{% url 'home' %}">
+                Корочки<span style="color: #3498db;">.</span>есть
+                </a>
+            </div>
+            
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if user.is_authenticated %}
+                        {% if user.is_superuser %}
+                            <li class="nav-item mx-2">
+                                <a class="nav-link btn btn-warning btn-sm" href="{% url 'admin_dashboard' %}">
+                                    Панель администратора
+                                </a>
+                            </li>
+                            <li class="nav-item mx-2">
+                                <a class="nav-link" href="/admin/" target="_blank">
+                                    Админка Django
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item mx-2">
+                                <a class="nav-link btn btn-primary btn-sm" href="{% url 'create_application' %}">
+                                    Новая заявка
+                                </a>
+                            </li>
+                            <li class="nav-item mx-2">
+                                <a class="nav-link" href="{% url 'profile' %}">
+                                    Личный кабинет
+                                </a>
+                            </li>
+                        {% endif %}
+                        
+                        <li class="nav-item dropdown mx-2">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                {{ user.full_name|default:user.username }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'profile' %}">
+                                    Профиль
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'edit_profile' %}">
+                                    Редактировать
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                    Выйти
+                                </a></li>
+                            </ul>
+                        </li>
+                        
+                    {% else %}
+                        <li class="nav-item mx-2">
+                            <a class="nav-link" href="{% url 'login' %}">
+                                Войти
+                            </a>
+                        </li>
+                        <li class="nav-item mx-2">
+                            <a class="nav-link btn btn-success btn-sm" href="{% url 'register' %}">
+                                Регистрация
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-3">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+                    <div class="d-flex align-items-center">
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle me-2"></i>
+                        {% elif message.tags == 'error' or message.tags == 'danger' %}
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                        {% elif message.tags == 'warning' %}
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                        {% elif message.tags == 'info' %}
+                            <i class="fas fa-info-circle me-2"></i>
+                        {% endif %}
+                        <div>{{ message }}</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <main class="container py-4">
+        {% block content %}
+        {% endblock %}
+    </main>
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Корочки.есть</h5>
+                    <p>Портал дополнительного профессионального образования</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Контакты</h5>
+                    <p>info@korochki-est.ru</p>
+                    <p>8(800)535-35-35</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Быстрые ссылки</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'home' %}" class="text-light">Главная</a></li>
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'profile' %}" class="text-light">Профиль</a></li>
+                        {% else %}
+                            <li><a href="{% url 'login' %}" class="text-light"> Войти</a></li>
+                            <li><a href="{% url 'register' %}" class="text-light">Регистрация</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <hr class="bg-light">
+            <div class="text-center">
+                <p class="mb-0">© 2024 Портал "Корочки.есть". Все права защищены.</p>
+                <small>Лицензия на образовательную деятельность №123456 от 01.01.2024</small>
+            </div>
+        </div>
+    </footer>
+
+    <script >
+
+    class SimpleDropdown {
+        constructor(element) {
+            this.element = element;
+            this.toggle = element.querySelector('.dropdown-toggle') || element;
+            this.menu = element.querySelector('.dropdown-menu');
+            
+            this.init();
+        }
+        
+        init() {
+            this.toggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.toggleMenu();
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!this.element.contains(e.target)) {
+                    this.hide();
+                }
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && this.isOpen()) {
+                    this.hide();
+                }
+            });
+        }
+        
+        toggleMenu() {
+            if (this.isOpen()) {
+                this.hide();
+            } else {
+                this.show();
+            }
+        }
+        
+        show() {
+            this.menu.classList.add('show');
+            this.element.classList.add('show');
+            this.toggle.setAttribute('aria-expanded', 'true');
+        }
+        
+        hide() {
+            this.menu.classList.remove('show');
+            this.element.classList.remove('show');
+            this.toggle.setAttribute('aria-expanded', 'false');
+        }
+        
+        isOpen() {
+            return this.menu.classList.contains('show');
+        }
+    }
+    function initializeSimpleDropdowns() {
+        const dropdowns = document.querySelectorAll('.dropdown');
+        dropdowns.forEach(dropdown => {
+            new SimpleDropdown(dropdown);
+        });
+    }
+    document.addEventListener('DOMContentLoaded', initializeSimpleDropdowns);
+    window.SimpleDropdown = SimpleDropdown;
+    </script>
+    
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>

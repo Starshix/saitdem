@@ -1,0 +1,45 @@
+{% extends 'portal/base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card p-5 mb-4">
+            <h1 class="display-4 mb-4">🎓 Добро пожаловать на портал "Корочки.есть"!</h1>
+            <p class="lead mb-4">
+                Получите дополнительное профессиональное образование онлайн. 
+                Выбирайте курсы, оставляйте заявки и развивайтесь вместе с нами!
+            </p>
+            
+            {% if not user.is_authenticated %}
+                <div class="d-grid gap-3 d-md-flex justify-content-md-center">
+                    <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-5">
+                        Начать обучение
+                    </a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-primary btn-lg px-5">
+                        Войти в систему
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card p-4">
+            <h4>📚 Доступные курсы:</h4>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Веб-разработка на Python и Django</li>
+                <li class="list-group-item">Data Science и ML</li>
+                <li class="list-group-item">Мобильная разработка на Flutter</li>
+                <li class="list-group-item">Графический дизайн в Figma</li>
+                <li class="list-group-item">DevOps</li>
+                <li class="list-group-item">Английский для IT</li>
+            </ul>
+            {% if user.is_authenticated and not user.is_superuser %}
+                <a href="{% url 'create_application' %}" class="btn btn-success mt-3 w-100">
+                    🚀 Подать заявку на курс
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

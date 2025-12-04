@@ -1,0 +1,141 @@
+{% extends 'portal/base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card p-4">
+            <h2 class="text-center mb-4">Новая заявка на обучение</h2>
+            
+            <form method="post" id="application-form">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="{{ form.course.id_for_label }}" class="form-label">
+                        {{ form.course.label }} <span class="text-danger">*</span>
+                    </label>
+                    {{ form.course }}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.desired_start_date.id_for_label }}" class="form-label">
+                        {{ form.desired_start_date.label }} <span class="text-danger">*</span>
+                    </label>
+                    {{ form.desired_start_date }}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.payment_method.id_for_label }}" class="form-label">
+                        {{ form.payment_method.label }} <span class="text-danger">*</span>
+                    </label>
+                    {{ form.payment_method }}
+                </div>
+                
+                <div id="course-description" class="alert alert-info" style="display: none;">
+                    <h5>Описание выбранного курса:</h5>
+                    <p id="description-text"></p>
+                </div>
+                
+                <div class="alert alert-info">
+                    <small>
+                        После отправки заявки она будет рассмотрена администратором. 
+                        Вы сможете отслеживать статус в своем профиле.
+                    </small>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg">Отправить заявку</button>
+                    <a href="{% url 'profile' %}" class="btn btn-outline-secondary">
+                        Вернуться к списку заявок
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card p-4">
+            <h4>📚 Все курсы:</h4>
+            <div class="list-group">
+                {% for course in form.course.field.queryset %}
+                <a href="#" class="list-group-item list-group-item-action course-preview" 
+                   data-course-id="{{ course.id }}"
+                   data-description="{{ course.description }}">
+                    <h6 class="mb-1">{{ course.title }}</h6>
+                    <small class="text-muted">
+                        {% if course.description|length > 80 %}
+                            {{ course.description|slice:":80" }}...
+                        {% else %}
+                            {{ course.description }}
+                        {% endif %}
+                    </small>
+                </a>
+                {% empty %}
+                <div class="alert alert-warning">
+                    Нет доступных курсов в данный момент.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Данные о курсах из Django
+const coursesData = {
+    {% for course in form.course.field.queryset %}
+    {{ course.id }}: {
+        title: "{{ course.title|escapejs }}",
+        description: `{{ course.description|escapejs }}`
+    },
+    {% endfor %}
+};
+
+// Функция для отображения описания курса
+function showCourseDescription() {
+    const select = document.getElementById('course-select');
+    const descriptionDiv = document.getElementById('course-description');
+    const descriptionText = document.getElementById('description-text');
+    
+    if (select.value) {
+        const courseId = select.value;
+        const course = coursesData[courseId];
+        
+        if (course) {
+            descriptionText.textContent = course.description;
+            descriptionDiv.style.display = 'block';
+        }
+    } else {
+        descriptionDiv.style.display = 'none';
+    }
+}
+
+// Показываем описание при загрузке страницы (если курс уже выбран)
+document.addEventListener('DOMContentLoaded', function() {
+    showCourseDescription();
+    
+    // Добавляем обработчики для клика по курсам в списке справа
+    document.querySelectorAll('.course-preview').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const courseId = this.getAttribute('data-course-id');
+            const description = this.getAttribute('data-description');
+            
+            // Устанавливаем выбранный курс в select
+            const select = document.getElementById('course-select');
+            select.value = courseId;
+            
+            // Показываем описание
+            const descriptionDiv = document.getElementById('course-description');
+            const descriptionText = document.getElementById('description-text');
+            descriptionText.textContent = description;
+            descriptionDiv.style.display = 'block';
+            
+            // Прокручиваем к форме
+            document.getElementById('application-form').scrollIntoView({behavior: 'smooth'});
+        });
+    });
+});
+</script>
+{% endblock %}
