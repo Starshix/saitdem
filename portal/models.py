@@ -4,37 +4,39 @@ from django.core.validators import RegexValidator, MinLengthValidator
 from django.utils.translation import gettext_lazy as _
 
 class CustomUser(AbstractUser):
-    """Кастомная модель пользователя с дополнительными полями"""
+    # ЛОГИН
     username_validator = RegexValidator(
-        regex=r'^[a-zA-Z0-9]{6,}$',
-        message='Логин должен содержать только латинские буквы и цифры, минимум 6 символов'
+        regex=r'^[a-zA-Z][a-zA-Z0-9_]{5,}$',
+        message='Логин должен начинаться с буквы и содержать только латинские буквы, цифры и _, минимум 6 символа',
     )
     
+    # ТЕЛЕФОН (гибкий)
     phone_validator = RegexValidator(
-        regex=r'^8\(\d{3}\)\d{3}-\d{2}-\d{2}$',
-        message='Телефон должен быть в формате: 8(XXX)XXX-XX-XX'
+        regex=r'^[\d\s\-\+\(\)]{10,15}$',
+        message='Введите номер телефона (10-15 цифр)'
     )
     
+    # ФИО
     full_name_validator = RegexValidator(
-        regex=r'^[А-Яа-яЁё\s]+$',
-        message='ФИО должно содержать только кириллицу и пробелы'
+        regex=r'^[A-Za-zА-Яа-яЁё\s\-\']+$',
+        message='ФИО должно содержать только буквы, пробелы, дефисы и апострофы'
     )
     
     username = models.CharField(
-        _('username'),
         max_length=150,
         unique=True,
-        help_text=_('Required. 6 characters minimum. Latin letters and digits only.'),
-        validators=[username_validator, MinLengthValidator(6)],
+        validators=[username_validator, MinLengthValidator(3)],
         error_messages={
-            'unique': _("A user with that username already exists."),
+            'unique': 'Пользователь с таким логином уже существует.',
         },
+        help_text='Минимум 6 символов'
     )
-
+    
     full_name = models.CharField(
         max_length=200,
         verbose_name='ФИО',
-        validators=[full_name_validator]
+        validators=[full_name_validator],
+        help_text='Иванов Иван Иванович'
     )
     
     phone = models.CharField(
@@ -42,10 +44,10 @@ class CustomUser(AbstractUser):
         verbose_name='Телефон',
         validators=[phone_validator]
     )
-    
     email = models.EmailField(
         unique=True,
-        verbose_name='Email'
+        verbose_name='Email',
+        help_text='pochta@mail.ru'
     )
     def __str__(self):
         return f"{self.full_name} ({self.username})"

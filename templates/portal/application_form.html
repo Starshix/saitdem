@@ -82,7 +82,7 @@
 
 {% block scripts %}
 <script>
-// Данные о курсах из Django
+
 const coursesData = {
     {% for course in form.course.field.queryset %}
     {{ course.id }}: {
@@ -92,7 +92,6 @@ const coursesData = {
     {% endfor %}
 };
 
-// Функция для отображения описания курса
 function showCourseDescription() {
     const select = document.getElementById('course-select');
     const descriptionDiv = document.getElementById('course-description');
@@ -111,28 +110,23 @@ function showCourseDescription() {
     }
 }
 
-// Показываем описание при загрузке страницы (если курс уже выбран)
 document.addEventListener('DOMContentLoaded', function() {
     showCourseDescription();
     
-    // Добавляем обработчики для клика по курсам в списке справа
     document.querySelectorAll('.course-preview').forEach(item => {
         item.addEventListener('click', function(e) {
             e.preventDefault();
             const courseId = this.getAttribute('data-course-id');
             const description = this.getAttribute('data-description');
             
-            // Устанавливаем выбранный курс в select
             const select = document.getElementById('course-select');
             select.value = courseId;
             
-            // Показываем описание
             const descriptionDiv = document.getElementById('course-description');
             const descriptionText = document.getElementById('description-text');
             descriptionText.textContent = description;
             descriptionDiv.style.display = 'block';
             
-            // Прокручиваем к форме
             document.getElementById('application-form').scrollIntoView({behavior: 'smooth'});
         });
     });

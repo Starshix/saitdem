@@ -4,20 +4,22 @@ from django.core.validators import MinLengthValidator
 from .models import CustomUser, Application, Course
 
 
-class CustomUserCreationForm(UserCreationForm):
-    password1 = forms.CharField(
+from django.contrib.auth.forms import UserCreationForm
+from django import forms
+from django.core.exceptions import ValidationError
+
+class SimpleUserCreationForm(forms.ModelForm):
+    """Упрощенная форма регистрации без подтверждения пароля"""
+    password = forms.CharField(
         label='Пароль',
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
-        validators=[MinLengthValidator(8)]
-    )
-    password2 = forms.CharField(
-        label='Подтверждение пароля',
-        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+        validators=[MinLengthValidator(8)],
+        help_text='Минимум 8 символов'
     )
     
     class Meta:
         model = CustomUser
-        fields = ['username', 'full_name', 'phone', 'email', 'password1', 'password2']
+        fields = ['username', 'full_name', 'phone', 'email']
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
             'full_name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -33,9 +35,15 @@ class CustomUserCreationForm(UserCreationForm):
             'phone': 'Телефон',
             'email': 'Email',
         }
-        help_texts = {
-            'username': 'Латинские буквы и цифры, минимум 6 символов',
-        }
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password"])
+        if commit:
+            user.save()
+        return user
+    
+
 
 
 class CustomAuthenticationForm(AuthenticationForm):
@@ -155,3 +163,4 @@ class UserProfileForm(forms.ModelForm):
             self.add_error('current_password', 'Введите текущий пароль для смены пароля')
         
         return cleaned_data
+    

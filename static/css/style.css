@@ -11321,3 +11321,81 @@ footer {
 .logo{
     width: 40px;
 }
+#mainSlider {
+    margin-bottom: 3rem;
+}
+
+.carousel-item {
+    transition: transform 0.6s ease-in-out;
+}
+
+.slider-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.3));
+    z-index: 1;
+}
+
+.carousel-caption {
+    z-index: 2;
+    bottom: 20%;
+}
+
+.slider-content {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.slider-content h2 {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.slider-content p {
+    font-size: 1.2rem;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
+
+.carousel-indicators button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin: 0 5px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border: none;
+}
+
+.carousel-indicators button.active {
+    background-color: #fff;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    width: 5%;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    #mainSlider .carousel-item img {
+        height: 300px;
+    }
+    
+    .slider-content {
+        padding: 1rem;
+    }
+    
+    .slider-content h2 {
+        font-size: 1.8rem;
+    }
+    
+    .carousel-caption {
+        bottom: 10%;
+    }
+}

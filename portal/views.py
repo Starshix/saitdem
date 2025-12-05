@@ -5,8 +5,11 @@ from django.contrib import messages
 from django.contrib.auth.views import LoginView
 from django.views.generic import ListView
 from .models import CustomUser, Application, Course
+import os
+from django.conf import settings
+
 from .forms import (
-    CustomUserCreationForm, 
+    SimpleUserCreationForm, 
     CustomAuthenticationForm,
     ApplicationForm,
     FeedbackForm,
@@ -24,7 +27,7 @@ def admin_required(view_func):
 
 def register_view(request):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
+        form = SimpleUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             messages.success(request, 'Регистрация прошла успешно! Теперь вы можете войти.')
@@ -32,7 +35,7 @@ def register_view(request):
         else:
             messages.error(request, 'Пожалуйста, исправьте ошибки в форме.')
     else:
-        form = CustomUserCreationForm()
+        form = SimpleUserCreationForm()
     
     return render(request, 'portal/register.html', {'form': form})
 
@@ -162,9 +165,35 @@ def admin_dashboard_view(request):
 
 
 def home_view(request):
+    """Главная страница"""
+    # Получаем список изображений для слайдера
+    slider_images = []
+    slider_path = os.path.join(settings.MEDIA_ROOT, 'slider')
+        
+    if os.path.exists(slider_path):
+        # Ищем файлы с расширениями изображений
+        image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+        for filename in os.listdir(slider_path):
+            if any(filename.lower().endswith(ext) for ext in image_extensions):
+                # Создаем путь относительно MEDIA_URL
+                slider_images.append(f'slider/{filename}')
+        
+    # Если нет реальных изображений, используем заглушки
+    if not slider_images:
+        slider_images = [
+            'slider/image08.webp',
+            'slider/image09.webp', 
+            'slider/image10.webp',
+            'slider/image11.jpg'
+        ]
+        
+    context = {
+        'slider_images': slider_images[:4],  # Берем максимум 4 изображения
+    }
+
     if request.user.is_authenticated:
         if request.user.is_superuser:
             return redirect('admin_dashboard')
         else:
             return redirect('profile')
-    return render(request, 'portal/home.html')
+    return render(request, 'portal/home.html', context)

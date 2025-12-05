@@ -1,6 +1,64 @@
 {% extends 'portal/base.html' %}
 
 {% block content %}
+<div class="container-fluid px-0">
+    <!-- Слайдер -->
+    <div id="mainSlider" class="carousel slide" data-bs-ride="carousel">
+        <!-- Индикаторы -->
+        <div class="carousel-indicators">
+            {% for image in slider_images %}
+            <button type="button" data-bs-target="#mainSlider" data-bs-slide-to="{{ forloop.counter0 }}" 
+                    {% if forloop.first %}class="active"{% endif %}></button>
+            {% endfor %}
+        </div>
+        
+        <!-- Слайды -->
+        <div class="carousel-inner rounded-3 overflow-hidden shadow-lg">
+            {% for image in slider_images %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}" data-bs-interval="3000">
+                <div class="slider-overlay"></div>
+                <img src="{% if 'http' in image %}{{ image }}{% else %}/media/{{ image }}{% endif %}" 
+                     class="d-block w-100" 
+                     alt="Слайд {{ forloop.counter }}" 
+                     style="height: 500px; object-fit: cover;">
+                <div class="carousel-caption d-none d-md-block">
+                    <div class="slider-content">
+                        {% if forloop.counter == 1 %}
+                        <h2 class="display-4 fw-bold mb-3">Начните карьеру в IT</h2>
+                        <p class="lead">Практические курсы от ведущих экспертов</p>
+                        {% elif forloop.counter == 2 %}
+                        <h2 class="display-4 fw-bold mb-3">Онлайн-обучение</h2>
+                        <p class="lead">Учитесь в любое время, в любом месте</p>
+                        {% elif forloop.counter == 3 %}
+                        <h2 class="display-4 fw-bold mb-3">Дипломы и сертификаты</h2>
+                        <p class="lead">Государственного образца</p>
+                        {% elif forloop.counter == 4 %}
+                        <h2 class="display-4 fw-bold mb-3">Трудоустройство</h2>
+                        <p class="lead">Помощь в поиске работы после обучения</p>
+                        {% endif %}
+                        {% if not user.is_authenticated %}
+                        <a href="{% url 'register' %}" class="btn btn-primary btn-lg mt-3 px-5">
+                            Начать обучение
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Кнопки навигации -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#mainSlider" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+            <span class="visually-hidden">Предыдущий</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#mainSlider" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+            <span class="visually-hidden">Следующий</span>
+        </button>
+    </div>
+</div>
+<div class="container py-5">
 <div class="row">
     <div class="col-md-8">
         <div class="card p-5 mb-4">
@@ -42,4 +100,48 @@
         </div>
     </div>
 </div>
+<script>
+// Автоматическое переключение слайдов каждые 3 секунды
+document.addEventListener('DOMContentLoaded', function() {
+    const myCarousel = document.getElementById('mainSlider');
+    
+    if (myCarousel) {
+        // Инициализация карусели
+        const carousel = new bootstrap.Carousel(myCarousel, {
+            interval: 3000, // 3 секунды
+            wrap: true,
+            pause: 'hover'
+        });
+        
+        // Добавляем паузу при наведении
+        myCarousel.addEventListener('mouseenter', function() {
+            carousel.pause();
+        });
+        
+        myCarousel.addEventListener('mouseleave', function() {
+            carousel.cycle();
+        });
+        
+        // Анимация появления текста
+        const carouselItems = document.querySelectorAll('.carousel-item');
+        carouselItems.forEach(item => {
+            item.addEventListener('slide.bs.carousel', function() {
+                const caption = this.querySelector('.slider-content');
+                if (caption) {
+                    caption.style.opacity = '0';
+                    caption.style.transform = 'translateY(20px)';
+                    
+                    setTimeout(() => {
+                        caption.style.transition = 'all 0.5s ease';
+                        caption.style.opacity = '1';
+                        caption.style.transform = 'translateY(0)';
+                    }, 300);
+                }
+            });
+        });
+    }
+});
+</script>
+</div>
+
 {% endblock %}
